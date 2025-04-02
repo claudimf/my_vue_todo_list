@@ -28,3 +28,10 @@ In the root folder we have a file named '01_build_local_project.sh' to build the
 ```sh
 bash 01_build_local_project.sh
 ```
+
+## Running rspec tests
+
+Running rspec tests locally:
+```
+bash 03_run_tests_locally.sh
+```
