@@ -21,6 +21,7 @@ services:
     restart: always
     depends_on:
       - db
+      - kafka
     env_file:
       - 'backend/.env'
     ports:
@@ -28,6 +29,39 @@ services:
     volumes:
       - ./backend:/app
     command: ["rails", "server", "-b", "0.0.0.0"]
+  
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka_broker
+    restart: always
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: kafka_zookeeper
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+
+  consumer:
+    build: ./backend
+    container_name: todo_consumer
+    restart: always
+    depends_on:
+      - kafka
+    env_file:
+      - 'backend/.env'
+    environment:
+      KAFKA_BROKER: kafka:9092
+    command: ["bundle", "exec", "karafka", "server"]
   
 volumes:
   pg_data:
