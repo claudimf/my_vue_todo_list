@@ -20,5 +20,9 @@ docker rmi todo_backend
 docker compose build backend
 echo "Images - done!"
 
+docker compose run --rm backend rails db:drop
+docker compose run --rm backend rails db:create
+docker compose run --rm backend rails db:migrate
+
 # How to run:
 # bash 01_build_local_project.sh
