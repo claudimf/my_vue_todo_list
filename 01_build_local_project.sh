@@ -1,9 +1,15 @@
 #!/bin/sh
 
 echo "Existing containers - destroying..."
+
 docker stop $(docker container ls --format "{{.Names}}" | grep todo_backend)
 docker rm $(docker container ls --format "{{.Names}}" | grep todo_backend)
+
+docker stop $(docker container ls --format "{{.Names}}" | grep todo_frontend)
+docker rm $(docker container ls --format "{{.Names}}" | grep todo_frontend)
+
 docker compose down
+
 echo "Existing containers - done!"
 
 echo

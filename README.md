@@ -66,3 +66,4 @@ bash 03_run_tests_locally.sh
 [Apache Kafka](https://kafka.apache.org/)  
 [Docker](https://www.docker.com/)  
 [My Karafka App - Ruby on Rails + Kafka + Docker](https://github.com/claudimf/ruby_on_rails_kafka_docker)  
+[Vue CLI - Standard Tooling for Vue.js Development](https://cli.vuejs.org/#getting-started)  
