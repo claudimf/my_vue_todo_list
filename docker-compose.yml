@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db:
     image: postgres:15
-    container_name: todo_db
+    container_name: db
     restart: always
     environment:
       POSTGRES_USER: user
@@ -16,7 +16,7 @@ services:
   
   backend:
     build: ./backend
-    container_name: todo_backend
+    container_name: backend
     image: todo_backend
     restart: always
     depends_on:
@@ -24,27 +24,37 @@ services:
       - kafka
     env_file:
       - 'backend/.env'
+    environment:
+      RAILS_ENV: development
+      KAFKA_BROKERS: kafka:9092
     ports:
       - "3000:3000"
     volumes:
       - ./backend:/app
-    command: sh -c "rm -f /app/tmp/pids/server.pid && bundle exec karafka-web migrate && bundle exec rake db:migrate && bundle exec bin/rails server -p 3000 -b 0.0.0.0"
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails db:create db:migrate && bundle exec rails server -b 0.0.0.0 -p 3000"
   
   kafka:
     image: confluentinc/cp-kafka:latest
-    container_name: kafka_broker
+    container_name: kafka
     restart: always
     environment:
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9991
+      KAFKA_JMX_HOSTNAME: localhost
     ports:
       - "9092:9092"
+      - "9991:9991"
     depends_on:
       - zookeeper
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
-    container_name: kafka_zookeeper
+    container_name: zookeeper
     restart: always
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -52,15 +62,16 @@ services:
       - "2181:2181"
 
   consumer:
-    build: ./backend
-    container_name: todo_consumer
+    image: todo_backend
+    container_name: consumer
     restart: always
     depends_on:
       - kafka
     env_file:
       - 'backend/.env'
     environment:
-      KAFKA_BROKER: kafka:9092
+      RAILS_ENV: development
+      KAFKA_BROKERS: kafka:9092
     command: ["bundle", "exec", "karafka", "server"]
   
 volumes:

@@ -17,6 +17,7 @@ echo
 echo "Images - building..."
 docker rmi $(docker images -f dangling=true)
 docker rmi todo_backend
+docker system prune -a -f --volumes
 docker compose build backend
 echo "Images - done!"
 

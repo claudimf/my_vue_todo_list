@@ -18,7 +18,7 @@ class ToDosController < ApplicationController
     @to_do = ToDo.new(to_do_params)
 
     if @to_do.save
-      KafkaProducer.publish('todo_events', { action: 'created', todo: @todo })
+      KafkaProducer.publish('to_do_events', { action: 'created', to_do: @to_do })
       render json: @to_do, status: :created, location: @to_do
     else
       render json: @to_do.errors, status: :unprocessable_entity
@@ -28,7 +28,7 @@ class ToDosController < ApplicationController
   # PATCH/PUT /to_dos/1
   def update
     if @to_do.update(to_do_params)
-      KafkaProducer.publish('todo_events', { action: 'updated', todo: @todo })
+      KafkaProducer.publish('to_do_events', { action: 'updated', to_do: @to_do })
       render json: @to_do
     else
       render json: @to_do.errors, status: :unprocessable_entity
@@ -38,7 +38,7 @@ class ToDosController < ApplicationController
   # DELETE /to_dos/1
   def destroy
     if @to_do.destroy!
-      KafkaProducer.publish('todo_events', { action: 'deleted', todo: todo })
+      KafkaProducer.publish('to_do_events', { action: 'deleted', to_do: @to_do })
       render json: { message: 'Deleted' }, status: :ok
     else
       render json: @to_do.errors, status: :unprocessable_entity
@@ -53,6 +53,6 @@ class ToDosController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def to_do_params
-      params.require(:todo).permit(:title, :completed)
+      params.require(:to_do).permit(:title, :completed)
     end
 end
